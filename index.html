@@ -1295,10 +1295,10 @@ button:visited,
         <div class="cover-content">
             <h1 class="names">Alexander<br>&<br>Darya</h1>
             <div class="date">12 Сентября 2026</div>
-            <button class="hero-music-btn" id="musicToggle">
+            <!-- <button class="hero-music-btn" id="musicToggle">
                 <i class="fas fa-play"></i>
                 <span>Включить музыку</span>
-            </button>
+            </button> -->
             <div class="greeting-block">
                 <p class="greeting-text">
                     Дорогие друзья и близкие!<br>
@@ -1734,29 +1734,45 @@ button:visited,
     }
 
     // Zero блок - плавное исчезновение с скрытием основного сайта
-    const zeroSection = document.getElementById('zeroSection');
-    const enterButton = document.getElementById('enterButton');
-    const mainContent = document.getElementById('mainContent');
+// Zero блок - плавное исчезновение с включением музыки
+const zeroSection = document.getElementById('zeroSection');
+const enterButton = document.getElementById('enterButton');
+const mainContent = document.getElementById('mainContent');
 
-    if (zeroSection && enterButton && mainContent) {
-        zeroSection.classList.remove('hide');
-        zeroSection.style.display = 'block';
-        mainContent.style.display = 'none';
+// Создаём аудио объект глобально
+let weddingAudio = null;
+
+if (zeroSection && enterButton && mainContent) {
+    zeroSection.classList.remove('hide');
+    zeroSection.style.display = 'block';
+    mainContent.style.display = 'none';
+    
+    // Создаём аудио один раз
+    weddingAudio = new Audio('1.mp3');
+    weddingAudio.loop = true;
+    weddingAudio.volume = 0.5;
+    
+    enterButton.addEventListener('click', () => {
+        zeroSection.classList.add('hide');
         
-        enterButton.addEventListener('click', () => {
-            zeroSection.classList.add('hide');
-            
-            setTimeout(() => {
-                zeroSection.style.display = 'none';
-                mainContent.style.display = 'block';
-            }, 1000);
-        });
-    }
+        // Включаем музыку
+        if (weddingAudio) {
+            weddingAudio.play().catch(error => {
+                console.log('Автовоспроизведение заблокировано');
+            });
+        }
+        
+        setTimeout(() => {
+            zeroSection.style.display = 'none';
+            mainContent.style.display = 'block';
+        }, 1000);
+    });
+}
 
     // Инициализация
     document.addEventListener('DOMContentLoaded', () => {
         new MomentsSlider();
-        new WeddingMusic();
+        // new WeddingMusic();
     });
 </script>
 </body>
