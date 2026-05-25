@@ -1173,15 +1173,119 @@ button:visited,
     user-select: none !important;
 }
 
+.moments-slide:nth-child(4) {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    overflow: hidden;
+}
+
+.moments-slide:nth-child(4) img {
+    width: auto;
+    height: 100%;
+    min-width: 100%;
+    object-fit: cover;
+    object-position: 60% center !important;
+}
 /* Дополнительно для всех интерактивных элементов */
 * {
     -webkit-tap-highlight-color: transparent;
+}
+
+/* Zero блок - приветственная заставка */
+.zero-section {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1000;
+    overflow: hidden;
+    transition: opacity 1s ease, visibility 1s ease;
+}
+
+.zero-section.hide {
+    opacity: 0;
+    visibility: hidden;
+}
+
+.zero-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(26, 58, 47, 0.3);
+    z-index: 1;
+}
+
+.zero-content {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    z-index: 2;
+}
+
+.zero-bg {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: 50% 50%;
+    transform: scale(1.13);
+}
+.zero-button {
+    position: absolute;
+    top: 58% !important;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 3;
+    background: rgba(255,255,255,0.2);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255,255,255,0.5);
+    color: white;
+    padding: 14px 45px;
+    font-size: 1.2rem;
+    font-family: 'Cormorant Garamond', serif;
+    border-radius: 50px;
+    cursor: pointer;
+    transition: all 0.4s ease;
+    letter-spacing: 2px;
+}
+
+.zero-button:hover {
+    background: rgba(255,255,255,0.35);
+    transform: translateX(-50%) scale(1.05);
+    letter-spacing: 4px;
+}
+
+@media (max-width: 768px) {
+    .zero-button {
+        padding: 10px 35px;
+        font-size: 1rem;
+        top: 40%;
+    }
+}
+
+@media (max-width: 480px) {
+    .zero-button {
+        top: 38%;
+    }
 }
     </style>
     <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=Dancing+Script:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
+
+    <!-- Zero блок - приветственная заставка -->
+    <!-- Zero блок - приветственная заставка -->
+    <section class="zero-section" id="zeroSection">
+        <div class="zero-overlay"></div>
+        <div class="zero-content">
+            <img src="zero.jpg" alt="Wedding" class="zero-bg">
+            <button class="zero-button" id="enterButton">Нажимай!</button>
+        </div>
+    </section>
     <!-- Обложка -->
     <section class="cover-section">
         <div class="floral-frame"></div>
@@ -1199,7 +1303,7 @@ button:visited,
                     Мы рады пригласить вас разделить с нами радость самого важного дня в нашей жизни. 
                     Ваше присутствие сделает этот день по-настоящему особенным.
                 </p>
-                <div class="signature">Alexander & Daria</div>
+                <div class="signature">Alexander &Darya</div>
             </div>
         </div>
         
@@ -1315,7 +1419,7 @@ button:visited,
             <h2 class="section-title">Дресс-код</h2>
             <div class="dresscode-content">
                 <p class="dresscode-text">
-                    Мы будем рады, если при выборе наряда Вы поддержите цветовую гамму нашего торжества:
+                    Мы будем рады, если при выборе наряда Вы поддержите цветовую гамму нашего торжества (оттенки зеленого, розового, коричневого и бежевого):
                 </p>
                 <div class="color-palette">
                     <div class="color-item color-beige" title="Бежевый"></div>
@@ -1369,14 +1473,17 @@ button:visited,
                 <div class="moments-slide">
                     <img src="3.jpg" alt="Свадебный момент 2">
                 </div>
+                <div class="moments-slide">
+                    <img src="4.jpg" alt="Свадебный момент 2">
+                </div>
+                <div class="moments-slide">
+                    <img src="5.jpg" alt="Свадебный момент 2">
+                </div>
             </div>
             <button class="slider-nav prev" id="sliderPrev">‹</button>
             <button class="slider-nav next" id="sliderNext">›</button>
         </div>
-        <div class="slider-dots" id="sliderDots">
-            <span class="dot active"></span>
-            <span class="dot"></span>
-        </div>
+        <div class="slider-dots" id="sliderDots"></div>
         <!-- <p class="moments-hint">‹ Свайпните влево/вправо или нажмите на стрелки ›</p> -->
     </div>
 </section>
@@ -1475,7 +1582,7 @@ button:visited,
     <footer>
         <div class="footer-floral"></div>
         <div class="container footer-content">
-            <p>Alexander & Daria</p>
+            <p>Alexander &Darya</p>
             <p>Контакты для связи:</p>
             <p>+7 (920) 896-00-93 Александр</p>
             <p>+7 (965) 447-09-65 Дарья</p>
@@ -1613,9 +1720,10 @@ class MomentsSlider {
         this.slider = document.getElementById('momentsSlider');
         this.prevBtn = document.getElementById('sliderPrev');
         this.nextBtn = document.getElementById('sliderNext');
-        this.dots = document.querySelectorAll('.dot');
+        this.dotsContainer = document.getElementById('sliderDots');
         this.currentIndex = 0;
         this.slideWidth = 0;
+        this.totalSlides = 0;
         
         if (this.slider) {
             this.init();
@@ -1623,6 +1731,8 @@ class MomentsSlider {
     }
     
     init() {
+        this.totalSlides = this.slider.children.length;
+        this.createDots(); // динамически создаём точки
         this.updateSlideWidth();
         this.addEventListeners();
         
@@ -1632,6 +1742,19 @@ class MomentsSlider {
             this.updateSlideWidth();
             this.scrollToSlide(this.currentIndex, false);
         });
+    }
+    
+    createDots() {
+        if (!this.dotsContainer) return;
+        this.dotsContainer.innerHTML = '';
+        for (let i = 0; i < this.totalSlides; i++) {
+            const dot = document.createElement('span');
+            dot.classList.add('dot');
+            if (i === 0) dot.classList.add('active');
+            dot.addEventListener('click', () => this.scrollToSlide(i));
+            this.dotsContainer.appendChild(dot);
+        }
+        this.dots = document.querySelectorAll('.dot');
     }
     
     updateSlideWidth() {
@@ -1654,19 +1777,16 @@ class MomentsSlider {
     updateActiveDot() {
         const scrollLeft = this.slider.scrollLeft;
         const newIndex = Math.round(scrollLeft / this.slideWidth);
-        if (newIndex !== this.currentIndex && !isNaN(newIndex) && newIndex >= 0 && newIndex < this.dots.length) {
+        if (newIndex !== this.currentIndex && !isNaN(newIndex) && newIndex >= 0 && newIndex < this.totalSlides) {
             this.currentIndex = newIndex;
             this.updateDots();
         }
     }
     
     updateDots() {
+        if (!this.dots) return;
         this.dots.forEach((dot, i) => {
-            if (i === this.currentIndex) {
-                dot.classList.add('active');
-            } else {
-                dot.classList.remove('active');
-            }
+            dot.classList.toggle('active', i === this.currentIndex);
         });
     }
     
@@ -1681,17 +1801,11 @@ class MomentsSlider {
         
         if (this.nextBtn) {
             this.nextBtn.addEventListener('click', () => {
-                if (this.currentIndex < this.dots.length - 1) {
+                if (this.currentIndex < this.totalSlides - 1) {
                     this.scrollToSlide(this.currentIndex + 1);
                 }
             });
         }
-        
-        this.dots.forEach((dot, i) => {
-            dot.addEventListener('click', () => {
-                this.scrollToSlide(i);
-            });
-        });
     }
 }
 
@@ -1762,6 +1876,24 @@ document.addEventListener('DOMContentLoaded', () => {
     new MomentsSlider();
     new WeddingMusic();
 });
+// Zero блок - плавное исчезновение
+// Zero блок - плавное исчезновение
+const zeroSection = document.getElementById('zeroSection');
+const enterButton = document.getElementById('enterButton');
+
+if (zeroSection && enterButton) {
+    // Всегда показываем блок при загрузке
+    zeroSection.classList.remove('hide');
+    zeroSection.style.display = 'flex';
+    
+    enterButton.addEventListener('click', () => {
+        zeroSection.classList.add('hide');
+        
+        setTimeout(() => {
+            zeroSection.style.display = 'none';
+        }, 1000);
+    });
+}
     </script>
 </body>
 </html>
