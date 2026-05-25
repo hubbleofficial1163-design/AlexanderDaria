@@ -1515,231 +1515,415 @@ button:visited,
 </div>
 
 <script>
-    // Календарь
-    class WeddingCalendar {
-        constructor() {
-            this.currentDate = new Date(2026, 8, 12);
-            this.weddingDate = new Date(2026, 8, 12);
-            this.init();
+// Календарь
+class WeddingCalendar {
+    constructor() {
+        this.currentDate = new Date(2026, 8, 12);
+        this.weddingDate = new Date(2026, 8, 12);
+        this.init();
+    }
+    init() {
+        this.renderCalendar();
+        document.getElementById('prevMonth').addEventListener('click', () => this.changeMonth(-1));
+        document.getElementById('nextMonth').addEventListener('click', () => this.changeMonth(1));
+    }
+    changeMonth(direction) {
+        this.currentDate.setMonth(this.currentDate.getMonth() + direction);
+        this.renderCalendar();
+    }
+    renderCalendar() {
+        const monthYear = document.getElementById('currentMonthYear');
+        const calendarDays = document.getElementById('calendarDays');
+        const monthNames = ['Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь', 'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'];
+        monthYear.textContent = `${monthNames[this.currentDate.getMonth()]} ${this.currentDate.getFullYear()}`;
+        calendarDays.innerHTML = '';
+        const firstDay = new Date(this.currentDate.getFullYear(), this.currentDate.getMonth(), 1);
+        const lastDay = new Date(this.currentDate.getFullYear(), this.currentDate.getMonth() + 1, 0);
+        const daysInMonth = lastDay.getDate();
+        let firstDayOfWeek = firstDay.getDay();
+        if (firstDayOfWeek === 0) firstDayOfWeek = 6;
+        else firstDayOfWeek--;
+        for (let i = 0; i < firstDayOfWeek; i++) {
+            const emptyDay = document.createElement('div');
+            emptyDay.className = 'calendar-day other-month';
+            calendarDays.appendChild(emptyDay);
         }
-        init() {
-            this.renderCalendar();
-            document.getElementById('prevMonth').addEventListener('click', () => this.changeMonth(-1));
-            document.getElementById('nextMonth').addEventListener('click', () => this.changeMonth(1));
+        for (let day = 1; day <= daysInMonth; day++) {
+            const dayElement = document.createElement('div');
+            dayElement.className = 'calendar-day';
+            dayElement.textContent = day;
+            if (this.currentDate.getMonth() === this.weddingDate.getMonth() &&
+                this.currentDate.getFullYear() === this.weddingDate.getFullYear() &&
+                day === this.weddingDate.getDate()) {
+                dayElement.classList.add('wedding-day');
+            }
+            calendarDays.appendChild(dayElement);
         }
-        changeMonth(direction) {
-            this.currentDate.setMonth(this.currentDate.getMonth() + direction);
-            this.renderCalendar();
-        }
-        renderCalendar() {
-            const monthYear = document.getElementById('currentMonthYear');
-            const calendarDays = document.getElementById('calendarDays');
-            const monthNames = ['Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь', 'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'];
-            monthYear.textContent = `${monthNames[this.currentDate.getMonth()]} ${this.currentDate.getFullYear()}`;
-            calendarDays.innerHTML = '';
-            const firstDay = new Date(this.currentDate.getFullYear(), this.currentDate.getMonth(), 1);
-            const lastDay = new Date(this.currentDate.getFullYear(), this.currentDate.getMonth() + 1, 0);
-            const daysInMonth = lastDay.getDate();
-            let firstDayOfWeek = firstDay.getDay();
-            if (firstDayOfWeek === 0) firstDayOfWeek = 6;
-            else firstDayOfWeek--;
-            for (let i = 0; i < firstDayOfWeek; i++) {
+        const totalCells = firstDayOfWeek + daysInMonth;
+        const remainingCells = 7 - (totalCells % 7);
+        if (remainingCells < 7) {
+            for (let i = 0; i < remainingCells; i++) {
                 const emptyDay = document.createElement('div');
                 emptyDay.className = 'calendar-day other-month';
                 calendarDays.appendChild(emptyDay);
             }
-            for (let day = 1; day <= daysInMonth; day++) {
-                const dayElement = document.createElement('div');
-                dayElement.className = 'calendar-day';
-                dayElement.textContent = day;
-                if (this.currentDate.getMonth() === this.weddingDate.getMonth() &&
-                    this.currentDate.getFullYear() === this.weddingDate.getFullYear() &&
-                    day === this.weddingDate.getDate()) {
-                    dayElement.classList.add('wedding-day');
-                }
-                calendarDays.appendChild(dayElement);
-            }
-            const totalCells = firstDayOfWeek + daysInMonth;
-            const remainingCells = 7 - (totalCells % 7);
-            if (remainingCells < 7) {
-                for (let i = 0; i < remainingCells; i++) {
-                    const emptyDay = document.createElement('div');
-                    emptyDay.className = 'calendar-day other-month';
-                    calendarDays.appendChild(emptyDay);
-                }
-            }
         }
     }
-    const weddingCalendar = new WeddingCalendar();
+}
+const weddingCalendar = new WeddingCalendar();
 
-    // Анимации при скролле
-    const observer = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                entry.target.classList.add('visible');
-            }
-        });
-    }, { threshold: 0.1 });
-
-    document.addEventListener('DOMContentLoaded', () => {
-        const formGroups = document.querySelectorAll('.form-group');
-        formGroups.forEach(group => observer.observe(group));
+// Анимации при скролле
+const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+        if (entry.isIntersecting) {
+            entry.target.classList.add('visible');
+        }
     });
+}, { threshold: 0.1 });
 
-    // Форма
-    document.getElementById('weddingForm').addEventListener('submit', async (e) => {
+document.addEventListener('DOMContentLoaded', () => {
+    const formGroups = document.querySelectorAll('.form-group');
+    formGroups.forEach(group => observer.observe(group));
+});
+
+// ========== БАЗОВЫЕ СТИЛИ АНИМАЦИЙ ==========
+const coreStyles = document.createElement('style');
+coreStyles.textContent = `
+    @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+    @keyframes slideUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    @keyframes spin {
+        to { transform: rotate(360deg); }
+    }
+`;
+document.head.appendChild(coreStyles);
+
+// ========== УНИВЕРСАЛЬНОЕ МОДАЛЬНОЕ ОКНО ==========
+function showModal(title, message, isError = false) {
+    const existingModal = document.getElementById('customModal');
+    if (existingModal) existingModal.remove();
+
+    const modal = document.createElement('div');
+    modal.id = 'customModal';
+    modal.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 10000;
+        animation: fadeIn 0.3s ease;
+    `;
+
+    const icon = isError ? '✕' : '✓';
+    const iconColor = isError ? '#c62828' : '#2e7d32';
+    const bgIconColor = isError ? '#ffebee' : '#e8f5e9';
+    const borderColor = isError ? '#c62828' : '#2e7d32';
+
+    modal.innerHTML = `
+        <div style="
+            background: #ffffff;
+            border-radius: 16px;
+            padding: 32px 40px;
+            max-width: 380px;
+            width: 90%;
+            text-align: center;
+            box-shadow: 0 20px 35px rgba(0, 0, 0, 0.15);
+            animation: slideUp 0.3s ease;
+            border-top: 3px solid ${borderColor};
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        ">
+            <div style="
+                width: 60px;
+                height: 60px;
+                border-radius: 50%;
+                background: ${bgIconColor};
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                margin: 0 auto 20px auto;
+            ">
+                <div style="
+                    font-size: 32px;
+                    font-weight: 400;
+                    color: ${iconColor};
+                    line-height: 1;
+                ">${icon}</div>
+            </div>
+            <h3 style="
+                font-size: 24px;
+                font-weight: 500;
+                color: #1a1a1a;
+                margin-bottom: 12px;
+                letter-spacing: -0.3px;
+            ">${title}</h3>
+            <p style="
+                font-size: 16px;
+                color: #555555;
+                margin-bottom: 28px;
+                line-height: 1.5;
+            ">${message}</p>
+            <button onclick="this.closest('#customModal').remove()" style="
+                background: #f5f5f5;
+                color: #333333;
+                border: none;
+                padding: 12px 32px;
+                border-radius: 40px;
+                font-family: inherit;
+                font-size: 15px;
+                font-weight: 500;
+                cursor: pointer;
+                transition: all 0.2s ease;
+            " onmouseover="this.style.background='#e8e8e8'" onmouseout="this.style.background='#f5f5f5'">
+                Закрыть
+            </button>
+        </div>
+    `;
+
+    document.body.appendChild(modal);
+    modal.addEventListener('click', (e) => { if (e.target === modal) modal.remove(); });
+    if (!isError) setTimeout(() => { if (modal.parentElement) modal.remove(); }, 4000);
+}
+
+// ========== МОДАЛЬНОЕ ОКНО ЗАГРУЗКИ ==========
+function showLoadingModal() {
+    const existingLoading = document.getElementById('loadingModal');
+    if (existingLoading) existingLoading.remove();
+    
+    const loadingModal = document.createElement('div');
+    loadingModal.id = 'loadingModal';
+    loadingModal.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        backdrop-filter: blur(3px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 9999;
+    `;
+    loadingModal.innerHTML = `
+        <div style="
+            background: white;
+            border-radius: 16px;
+            padding: 32px 40px;
+            text-align: center;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        ">
+            <div style="
+                width: 50px;
+                height: 50px;
+                border: 3px solid #e0e0e0;
+                border-top-color: #6b8e23;
+                border-radius: 50%;
+                margin: 0 auto 20px;
+                animation: spin 1s linear infinite;
+            "></div>
+            <p style="
+                font-size: 15px;
+                color: #666;
+                margin: 0;
+            ">Отправка ответа...</p>
+        </div>
+    `;
+    document.body.appendChild(loadingModal);
+    return loadingModal;
+}
+
+// ========== GOOGLE SHEETS ==========
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx8h5kZd8YRi8hjnrWlX7DDrZ-VFpJro5Qah3Y-jXQdkhJQRxjNJGXsHZpcGe-NpvkU1Q/exec'; // ЗАМЕНИТЕ НА ВАШ URL
+
+// Обработка формы
+const weddingForm = document.getElementById('weddingForm');
+if (weddingForm) {
+    weddingForm.addEventListener('submit', async (e) => {
         e.preventDefault();
+        
         const submitBtn = document.querySelector('.submit-button');
         const originalText = submitBtn.textContent;
+        
+        // Получаем данные
+        const name = document.getElementById('name').value.trim();
+        const guests = document.getElementById('guests').value;
+        const attendanceRadio = document.querySelector('input[name="attendance"]:checked');
+        const message = document.getElementById('message').value.trim();
+        
+        // Валидация
+        if (!name) {
+            showModal('Ошибка', 'Пожалуйста, введите ваше имя', true);
+            document.getElementById('name').focus();
+            return;
+        }
+        
+        if (!attendanceRadio) {
+            showModal('Ошибка', 'Пожалуйста, выберите вариант присутствия', true);
+            return;
+        }
+        
+        // Показываем загрузку
         submitBtn.disabled = true;
         submitBtn.textContent = 'Отправка...';
-        setTimeout(() => {
-            alert('Спасибо! Ваш ответ получен.');
-            e.target.reset();
+        
+        const loadingModal = showLoadingModal();
+        
+        try {
+            const formDataToSend = new URLSearchParams();
+            formDataToSend.append('name', name);
+            formDataToSend.append('guests', guests);
+            formDataToSend.append('attendance', attendanceRadio.value);
+            formDataToSend.append('message', message);
+            
+            const response = await fetch(SCRIPT_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: formDataToSend.toString()
+            });
+            
+            const result = await response.json();
+            
+            loadingModal.remove();
+            
+            if (result.result === 'success') {
+                if (attendanceRadio.value === 'yes') {
+                    showModal(
+                        'Спасибо, ' + name + '!',
+                        'Мы будем ждать вас на нашей свадьбе 12 сентября 2026 года! 🎉',
+                        false
+                    );
+                } else if (attendanceRadio.value === 'no') {
+                    showModal(
+                        'Спасибо за ответ!',
+                        'Очень жаль, что вы не сможете быть с нами в этот день.',
+                        false
+                    );
+                } else {
+                    showModal(
+                        'Спасибо за ответ!',
+                        'Надеемся, что вы сможете присоединиться к нам!',
+                        false
+                    );
+                }
+                // Очищаем форму
+                weddingForm.reset();
+            } else {
+                throw new Error(result.message || 'Ошибка отправки');
+            }
+        } catch (error) {
+            loadingModal.remove();
+            showModal(
+                'Ошибка',
+                error.message || 'Произошла ошибка при отправке. Пожалуйста, попробуйте ещё раз.',
+                true
+            );
+        } finally {
             submitBtn.disabled = false;
             submitBtn.textContent = originalText;
-        }, 500);
+        }
     });
+}
 
-    // Слайдер
-    class MomentsSlider {
-        constructor() {
-            this.slider = document.getElementById('momentsSlider');
-            this.prevBtn = document.getElementById('sliderPrev');
-            this.nextBtn = document.getElementById('sliderNext');
-            this.dotsContainer = document.getElementById('sliderDots');
-            this.currentIndex = 0;
-            this.slideWidth = 0;
-            this.totalSlides = 0;
-            if (this.slider) this.init();
-        }
-        init() {
-            this.totalSlides = this.slider.children.length;
-            this.createDots();
+// Слайдер
+class MomentsSlider {
+    constructor() {
+        this.slider = document.getElementById('momentsSlider');
+        this.prevBtn = document.getElementById('sliderPrev');
+        this.nextBtn = document.getElementById('sliderNext');
+        this.dotsContainer = document.getElementById('sliderDots');
+        this.currentIndex = 0;
+        this.slideWidth = 0;
+        this.totalSlides = 0;
+        if (this.slider) this.init();
+    }
+    init() {
+        this.totalSlides = this.slider.children.length;
+        this.createDots();
+        this.updateSlideWidth();
+        this.addEventListeners();
+        this.slider.addEventListener('scroll', () => this.updateActiveDot());
+        window.addEventListener('resize', () => {
             this.updateSlideWidth();
-            this.addEventListeners();
-            this.slider.addEventListener('scroll', () => this.updateActiveDot());
-            window.addEventListener('resize', () => {
-                this.updateSlideWidth();
-                this.scrollToSlide(this.currentIndex, false);
-            });
+            this.scrollToSlide(this.currentIndex, false);
+        });
+    }
+    createDots() {
+        if (!this.dotsContainer) return;
+        this.dotsContainer.innerHTML = '';
+        for (let i = 0; i < this.totalSlides; i++) {
+            const dot = document.createElement('span');
+            dot.classList.add('dot');
+            if (i === 0) dot.classList.add('active');
+            dot.addEventListener('click', () => this.scrollToSlide(i));
+            this.dotsContainer.appendChild(dot);
         }
-        createDots() {
-            if (!this.dotsContainer) return;
-            this.dotsContainer.innerHTML = '';
-            for (let i = 0; i < this.totalSlides; i++) {
-                const dot = document.createElement('span');
-                dot.classList.add('dot');
-                if (i === 0) dot.classList.add('active');
-                dot.addEventListener('click', () => this.scrollToSlide(i));
-                this.dotsContainer.appendChild(dot);
-            }
-            this.dots = document.querySelectorAll('.dot');
+        this.dots = document.querySelectorAll('.dot');
+    }
+    updateSlideWidth() {
+        if (this.slider.children.length > 0) {
+            this.slideWidth = this.slider.children[0].offsetWidth;
         }
-        updateSlideWidth() {
-            if (this.slider.children.length > 0) {
-                this.slideWidth = this.slider.children[0].offsetWidth;
-            }
-        }
-        scrollToSlide(index, smooth = true) {
-            if (!this.slider.children[index]) return;
-            const targetSlide = this.slider.children[index];
-            targetSlide.scrollIntoView({
-                behavior: smooth ? 'smooth' : 'auto',
-                block: 'nearest',
-                inline: 'start'
-            });
-            this.currentIndex = index;
+    }
+    scrollToSlide(index, smooth = true) {
+        if (!this.slider.children[index]) return;
+        const targetSlide = this.slider.children[index];
+        targetSlide.scrollIntoView({
+            behavior: smooth ? 'smooth' : 'auto',
+            block: 'nearest',
+            inline: 'start'
+        });
+        this.currentIndex = index;
+        this.updateDots();
+    }
+    updateActiveDot() {
+        const scrollLeft = this.slider.scrollLeft;
+        const newIndex = Math.round(scrollLeft / this.slideWidth);
+        if (newIndex !== this.currentIndex && !isNaN(newIndex) && newIndex >= 0 && newIndex < this.totalSlides) {
+            this.currentIndex = newIndex;
             this.updateDots();
         }
-        updateActiveDot() {
-            const scrollLeft = this.slider.scrollLeft;
-            const newIndex = Math.round(scrollLeft / this.slideWidth);
-            if (newIndex !== this.currentIndex && !isNaN(newIndex) && newIndex >= 0 && newIndex < this.totalSlides) {
-                this.currentIndex = newIndex;
-                this.updateDots();
-            }
-        }
-        updateDots() {
-            if (!this.dots) return;
-            this.dots.forEach((dot, i) => {
-                dot.classList.toggle('active', i === this.currentIndex);
+    }
+    updateDots() {
+        if (!this.dots) return;
+        this.dots.forEach((dot, i) => {
+            dot.classList.toggle('active', i === this.currentIndex);
+        });
+    }
+    addEventListeners() {
+        if (this.prevBtn) {
+            this.prevBtn.addEventListener('click', () => {
+                if (this.currentIndex > 0) this.scrollToSlide(this.currentIndex - 1);
             });
         }
-        addEventListeners() {
-            if (this.prevBtn) {
-                this.prevBtn.addEventListener('click', () => {
-                    if (this.currentIndex > 0) this.scrollToSlide(this.currentIndex - 1);
-                });
-            }
-            if (this.nextBtn) {
-                this.nextBtn.addEventListener('click', () => {
-                    if (this.currentIndex < this.totalSlides - 1) this.scrollToSlide(this.currentIndex + 1);
-                });
-            }
+        if (this.nextBtn) {
+            this.nextBtn.addEventListener('click', () => {
+                if (this.currentIndex < this.totalSlides - 1) this.scrollToSlide(this.currentIndex + 1);
+            });
         }
     }
+}
 
-    // Музыка
-    class WeddingMusic {
-        constructor() {
-            this.audio = null;
-            this.isPlaying = false;
-            this.button = document.getElementById('musicToggle');
-            this.init();
-        }
-        init() {
-            this.audio = new Audio('1.mp3');
-            this.audio.loop = true;
-            this.audio.volume = 0.5;
-            if (this.button) {
-                this.updateButtonText();
-                this.button.addEventListener('click', () => this.toggleMusic());
-            }
-        }
-        updateButtonText() {
-            const span = this.button.querySelector('span');
-            const icon = this.button.querySelector('i');
-            if (this.isPlaying) {
-                span.textContent = 'Выключить музыку';
-                icon.className = 'fas fa-volume-up';
-                this.button.classList.add('playing');
-            } else {
-                span.textContent = 'Включить музыку';
-                icon.className = 'fas fa-play';
-                this.button.classList.remove('playing');
-            }
-        }
-        play() {
-            if (this.audio) {
-                this.audio.play().then(() => {
-                    this.isPlaying = true;
-                    this.updateButtonText();
-                }).catch(error => {
-                    console.log('Автовоспроизведение заблокировано');
-                });
-            }
-        }
-        pause() {
-            if (this.audio) {
-                this.audio.pause();
-                this.isPlaying = false;
-                this.updateButtonText();
-            }
-        }
-        toggleMusic() {
-            if (this.isPlaying) this.pause();
-            else this.play();
-        }
-    }
-
-    // Zero блок - плавное исчезновение с скрытием основного сайта
 // Zero блок - плавное исчезновение с включением музыки
 const zeroSection = document.getElementById('zeroSection');
 const enterButton = document.getElementById('enterButton');
 const mainContent = document.getElementById('mainContent');
 
-// Создаём аудио объект глобально
 let weddingAudio = null;
 
 if (zeroSection && enterButton && mainContent) {
@@ -1747,7 +1931,6 @@ if (zeroSection && enterButton && mainContent) {
     zeroSection.style.display = 'block';
     mainContent.style.display = 'none';
     
-    // Создаём аудио один раз
     weddingAudio = new Audio('1.mp3');
     weddingAudio.loop = true;
     weddingAudio.volume = 0.5;
@@ -1755,7 +1938,6 @@ if (zeroSection && enterButton && mainContent) {
     enterButton.addEventListener('click', () => {
         zeroSection.classList.add('hide');
         
-        // Включаем музыку
         if (weddingAudio) {
             weddingAudio.play().catch(error => {
                 console.log('Автовоспроизведение заблокировано');
@@ -1769,13 +1951,11 @@ if (zeroSection && enterButton && mainContent) {
     });
 }
 
-    // Инициализация
-    document.addEventListener('DOMContentLoaded', () => {
-        new MomentsSlider();
-        // new WeddingMusic();
-    });
+// Инициализация
+document.addEventListener('DOMContentLoaded', () => {
+    new MomentsSlider();
+});
 </script>
 </body>
 </html>
-
 
