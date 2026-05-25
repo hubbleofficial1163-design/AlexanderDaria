@@ -1643,8 +1643,12 @@ button:visited,
         }
         scrollToSlide(index, smooth = true) {
             if (!this.slider.children[index]) return;
-            const scrollAmount = this.slideWidth * index;
-            this.slider.scrollTo({ left: scrollAmount, behavior: smooth ? 'smooth' : 'auto' });
+            const targetSlide = this.slider.children[index];
+            targetSlide.scrollIntoView({
+                behavior: smooth ? 'smooth' : 'auto',
+                block: 'nearest',
+                inline: 'start'
+            });
             this.currentIndex = index;
             this.updateDots();
         }
