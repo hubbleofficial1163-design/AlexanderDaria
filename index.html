@@ -1919,7 +1919,7 @@ class MomentsSlider {
     }
 }
 
-// Zero блок - плавное исчезновение с включением музыки
+// Zero блок - плавное исчезновение без прыжка на мобильных
 const zeroSection = document.getElementById('zeroSection');
 const enterButton = document.getElementById('enterButton');
 const mainContent = document.getElementById('mainContent');
@@ -1928,14 +1928,26 @@ let weddingAudio = null;
 
 if (zeroSection && enterButton && mainContent) {
     zeroSection.classList.remove('hide');
-    zeroSection.style.display = 'block';
+    zeroSection.style.display = 'flex'; // или block
     mainContent.style.display = 'none';
+    
+    // Запоминаем текущую позицию скролла (пока на нуле)
+    let scrollPositionBeforeHide = window.scrollY;
     
     weddingAudio = new Audio('1.mp3');
     weddingAudio.loop = true;
     weddingAudio.volume = 0.5;
     
-    enterButton.addEventListener('click', () => {
+    enterButton.addEventListener('click', (e) => {
+        e.preventDefault();
+        
+        // Сохраняем текущую позицию скролла до скрытия zero-блока
+        scrollPositionBeforeHide = window.scrollY;
+        
+        // Принудительно блокируем скролл на долю секунды (предотвращаем перескок)
+        const originalOverflow = document.body.style.overflow;
+        document.body.style.overflow = 'hidden';
+        
         zeroSection.classList.add('hide');
         
         if (weddingAudio) {
@@ -1947,6 +1959,26 @@ if (zeroSection && enterButton && mainContent) {
         setTimeout(() => {
             zeroSection.style.display = 'none';
             mainContent.style.display = 'block';
+            
+            // Даём браузеру пересчитать макет (reflow)
+            void document.body.offsetHeight;
+            
+            // Возвращаем скролл в самое начало (top = 0)
+            window.scrollTo({
+                top: 0,
+                behavior: 'instant'
+            });
+            
+            // Разблокируем скролл тела
+            document.body.style.overflow = originalOverflow;
+            
+            // Дополнительная защита от прыжка через 10мс
+            setTimeout(() => {
+                if (window.scrollY > 0) {
+                    window.scrollTo({ top: 0, behavior: 'instant' });
+                }
+            }, 10);
+            
         }, 1000);
     });
 }
@@ -1958,4 +1990,3 @@ document.addEventListener('DOMContentLoaded', () => {
 </script>
 </body>
 </html>
-
