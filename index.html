@@ -1919,7 +1919,7 @@ class MomentsSlider {
     }
 }
 
-// Zero блок - плавное исчезновение без прыжка на мобильных
+// Zero блок - полное устранение прыжка на мобильных
 const zeroSection = document.getElementById('zeroSection');
 const enterButton = document.getElementById('enterButton');
 const mainContent = document.getElementById('mainContent');
@@ -1927,12 +1927,13 @@ const mainContent = document.getElementById('mainContent');
 let weddingAudio = null;
 
 if (zeroSection && enterButton && mainContent) {
-    zeroSection.classList.remove('hide');
-    zeroSection.style.display = 'flex'; // или block
-    mainContent.style.display = 'none';
+    // Принудительно фиксируем body, чтобы предотвратить скролл
+    const originalPosition = document.body.style.position;
+    const originalOverflow = document.body.style.overflow;
+    const originalTop = document.body.style.top;
     
-    // Запоминаем текущую позицию скролла (пока на нуле)
-    let scrollPositionBeforeHide = window.scrollY;
+    zeroSection.style.display = 'flex';
+    mainContent.style.display = 'none';
     
     weddingAudio = new Audio('1.mp3');
     weddingAudio.loop = true;
@@ -1941,11 +1942,11 @@ if (zeroSection && enterButton && mainContent) {
     enterButton.addEventListener('click', (e) => {
         e.preventDefault();
         
-        // Сохраняем текущую позицию скролла до скрытия zero-блока
-        scrollPositionBeforeHide = window.scrollY;
-        
-        // Принудительно блокируем скролл на долю секунды (предотвращаем перескок)
-        const originalOverflow = document.body.style.overflow;
+        // Фиксируем body, чтобы нельзя было скроллить
+        const scrollY = window.scrollY;
+        document.body.style.position = 'fixed';
+        document.body.style.top = `-${scrollY}px`;
+        document.body.style.width = '100%';
         document.body.style.overflow = 'hidden';
         
         zeroSection.classList.add('hide');
@@ -1960,28 +1961,43 @@ if (zeroSection && enterButton && mainContent) {
             zeroSection.style.display = 'none';
             mainContent.style.display = 'block';
             
-            // Даём браузеру пересчитать макет (reflow)
-            void document.body.offsetHeight;
-            
-            // Возвращаем скролл в самое начало (top = 0)
-            window.scrollTo({
-                top: 0,
-                behavior: 'instant'
-            });
-            
-            // Разблокируем скролл тела
+            // Восстанавливаем скролл наверх
+            document.body.style.position = originalPosition;
+            document.body.style.top = originalTop;
             document.body.style.overflow = originalOverflow;
+            document.body.style.width = '';
             
-            // Дополнительная защита от прыжка через 10мс
+            // Принудительно скроллим наверх
+            window.scrollTo(0, 0);
+            
+            // Двойная защита для мобильных браузеров
             setTimeout(() => {
-                if (window.scrollY > 0) {
-                    window.scrollTo({ top: 0, behavior: 'instant' });
-                }
-            }, 10);
+                window.scrollTo(0, 0);
+            }, 50);
             
-        }, 1000);
+            setTimeout(() => {
+                window.scrollTo(0, 0);
+            }, 150);
+            
+        }, 950);
     });
 }
+
+
+// Предотвращаем любой автоматический фокус на мобильных
+document.addEventListener('DOMContentLoaded', function() {
+    // Отключаем автофокус у всех полей ввода
+    const allInputs = document.querySelectorAll('input, textarea, select');
+    allInputs.forEach(input => {
+        input.removeAttribute('autofocus');
+        input.blur();
+    });
+    
+    // Принудительно удаляем активный элемент
+    if (document.activeElement && document.activeElement.blur) {
+        document.activeElement.blur();
+    }
+});
 
 // Инициализация
 document.addEventListener('DOMContentLoaded', () => {
