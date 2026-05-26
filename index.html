@@ -1919,19 +1919,13 @@ class MomentsSlider {
     }
 }
 
-// Zero блок - полное устранение прыжка на мобильных
+// Zero блок - упрощенная версия без прыжков
 const zeroSection = document.getElementById('zeroSection');
 const enterButton = document.getElementById('enterButton');
 const mainContent = document.getElementById('mainContent');
-
 let weddingAudio = null;
 
 if (zeroSection && enterButton && mainContent) {
-    // Принудительно фиксируем body, чтобы предотвратить скролл
-    const originalPosition = document.body.style.position;
-    const originalOverflow = document.body.style.overflow;
-    const originalTop = document.body.style.top;
-    
     zeroSection.style.display = 'flex';
     mainContent.style.display = 'none';
     
@@ -1942,43 +1936,17 @@ if (zeroSection && enterButton && mainContent) {
     enterButton.addEventListener('click', (e) => {
         e.preventDefault();
         
-        // Фиксируем body, чтобы нельзя было скроллить
-        const scrollY = window.scrollY;
-        document.body.style.position = 'fixed';
-        document.body.style.top = `-${scrollY}px`;
-        document.body.style.width = '100%';
-        document.body.style.overflow = 'hidden';
-        
         zeroSection.classList.add('hide');
         
         if (weddingAudio) {
-            weddingAudio.play().catch(error => {
-                console.log('Автовоспроизведение заблокировано');
-            });
+            weddingAudio.play().catch(() => {});
         }
         
         setTimeout(() => {
             zeroSection.style.display = 'none';
             mainContent.style.display = 'block';
-            
-            // Восстанавливаем скролл наверх
-            document.body.style.position = originalPosition;
-            document.body.style.top = originalTop;
-            document.body.style.overflow = originalOverflow;
-            document.body.style.width = '';
-            
-            // Принудительно скроллим наверх
-            window.scrollTo(0, 0);
-            
-            // Двойная защита для мобильных браузеров
-            setTimeout(() => {
-                window.scrollTo(0, 0);
-            }, 50);
-            
-            setTimeout(() => {
-                window.scrollTo(0, 0);
-            }, 150);
-            
+            // Принудительно скроллим наверх без фиксации body
+            window.scrollTo({ top: 0, behavior: 'instant' });
         }, 950);
     });
 }
