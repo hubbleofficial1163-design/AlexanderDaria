@@ -1271,6 +1271,18 @@ button:visited,
         top: 38%;
     }
 }
+
+/* Предотвращаем автоскролл к галерее на мобильных */
+.moments-slider {
+    scroll-snap-type: none; /* Временно отключаем snap при загрузке */
+}
+
+@media (min-width: 768px) {
+    .moments-slider {
+        scroll-snap-type: x mandatory; /* Включаем только на больших экранах */
+    }
+}
+
     </style>
     <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=Dancing+Script:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -1293,7 +1305,7 @@ button:visited,
     <section class="cover-section">
         <div class="floral-frame"></div>
         <div class="cover-content">
-            <h1 class="names">Alexander1<br>&<br>Darya</h1>
+            <h1 class="names">Alexander<br>&<br>Darya</h1>
             <div class="date">12 Сентября 2026</div>
             <!-- <button class="hero-music-btn" id="musicToggle">
                 <i class="fas fa-play"></i>
@@ -1841,6 +1853,7 @@ if (weddingForm) {
 }
 
 // Слайдер
+// Слайдер - ИСПРАВЛЕННАЯ ВЕРСИЯ (без автоматического скролла при инициализации)
 class MomentsSlider {
     constructor() {
         this.slider = document.getElementById('momentsSlider');
@@ -1857,11 +1870,13 @@ class MomentsSlider {
         this.createDots();
         this.updateSlideWidth();
         this.addEventListeners();
-        this.slider.addEventListener('scroll', () => this.updateActiveDot());
+        // ВАЖНО: НЕ слушаем scroll событие, которое может вызвать автоскролл
+        // this.slider.addEventListener('scroll', () => this.updateActiveDot()); // УДАЛИТЬ или закомментировать
         window.addEventListener('resize', () => {
             this.updateSlideWidth();
-            this.scrollToSlide(this.currentIndex, false);
         });
+        // Принудительно сбрасываем скролл слайдера в 0
+        this.slider.scrollLeft = 0;
     }
     createDots() {
         if (!this.dotsContainer) return;
@@ -1870,7 +1885,10 @@ class MomentsSlider {
             const dot = document.createElement('span');
             dot.classList.add('dot');
             if (i === 0) dot.classList.add('active');
-            dot.addEventListener('click', () => this.scrollToSlide(i));
+            dot.addEventListener('click', (e) => {
+                e.stopPropagation();
+                this.scrollToSlide(i);
+            });
             this.dotsContainer.appendChild(dot);
         }
         this.dots = document.querySelectorAll('.dot');
@@ -1882,16 +1900,15 @@ class MomentsSlider {
     }
     scrollToSlide(index, smooth = true) {
         if (!this.slider.children[index]) return;
-        const targetSlide = this.slider.children[index];
-        targetSlide.scrollIntoView({
-            behavior: smooth ? 'smooth' : 'auto',
-            block: 'nearest',
-            inline: 'start'
-        });
         this.currentIndex = index;
+        this.slider.scrollTo({
+            left: index * this.slideWidth,
+            behavior: smooth ? 'smooth' : 'auto'
+        });
         this.updateDots();
     }
     updateActiveDot() {
+        // Этот метод теперь не вызывается автоматически
         const scrollLeft = this.slider.scrollLeft;
         const newIndex = Math.round(scrollLeft / this.slideWidth);
         if (newIndex !== this.currentIndex && !isNaN(newIndex) && newIndex >= 0 && newIndex < this.totalSlides) {
@@ -1907,15 +1924,27 @@ class MomentsSlider {
     }
     addEventListeners() {
         if (this.prevBtn) {
-            this.prevBtn.addEventListener('click', () => {
+            this.prevBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
                 if (this.currentIndex > 0) this.scrollToSlide(this.currentIndex - 1);
             });
         }
         if (this.nextBtn) {
-            this.nextBtn.addEventListener('click', () => {
+            this.nextBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
                 if (this.currentIndex < this.totalSlides - 1) this.scrollToSlide(this.currentIndex + 1);
             });
         }
+        // Добавляем手动 обновление активной точки только при ручном скролле пользователя
+        let scrollTimeout;
+        this.slider.addEventListener('scroll', () => {
+            if (scrollTimeout) clearTimeout(scrollTimeout);
+            scrollTimeout = setTimeout(() => {
+                this.updateActiveDot();
+            }, 50);
+        });
     }
 }
 
